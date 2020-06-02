@@ -29,4 +29,26 @@ class Star(object):
     def move(self): # Displace star according to new velocity/acceleration
         self.vel.add(self.acc)
         self.pos.add(self.vel)
+    
+    def update(self,listOfStars): # Updates the position of a star wrt the force of a list of stars
+        F = PVector(0,0)
+        for i in listOfStars:
+            if i!=self:
+                F.add(self.force(i))
+        self.accel(F)
+        self.move()
+        self.show()
         
+#Exit class
+
+# Define functions that involve objects of the class        
+        
+def generateStars(n): # generates n stars in a list
+    stars = []
+    for i in range(n):
+        stars.append(Star(random(200,600),random(200,500),random(-1,1)))
+    return stars
+
+def updateStars(listOfStars):
+    for i in listOfStars:
+        i.update(listOfStars)
