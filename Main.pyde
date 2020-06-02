@@ -1,6 +1,6 @@
 from Star import *
 
-stars = generateStars(20)
+stars = generateStars(30)
 
 def setup(): 
   size(1000, 700)
@@ -8,3 +8,6 @@ def setup():
 def draw():
     background(0)
     updateStars(stars)
+    com(stars)
+
+    

@@ -1,7 +1,7 @@
 class Star(object):
 
     global G
-    G=6.67
+    G=6.67*10**(0)
     
     def __init__(self, xpos, ypos,velx=0, mass=1):  # Object constructor
        self.pos = PVector(xpos,ypos)
@@ -18,7 +18,7 @@ class Star(object):
         r1 = self.pos.copy()
         r = r1.sub(Star2.pos).mult(-1)
         if r.mag()<10:
-            r=r.normalize().mult(100)
+            r=r.normalize().mult(10)
         F_ = self.mass*Star2.mass*G/(r.mag())**2
         F = r.copy().normalize().mult(F_)
         return F
@@ -39,6 +39,7 @@ class Star(object):
         self.move()
         self.show()
         
+        
 #Exit class
 
 # Define functions that involve objects of the class        
@@ -52,3 +53,19 @@ def generateStars(n): # generates n stars in a list
 def updateStars(listOfStars):
     for i in listOfStars:
         i.update(listOfStars)
+
+def com(listOfStars): # transfers to COM frame
+    r=PVector(0,0)
+    for i in listOfStars:
+        r.add(i.pos.copy().mult(i.mass))
+    r.div(totalMass(listOfStars))
+    for i in listOfStars:
+        i.pos.sub(r).add(PVector(width/2,height/2))
+        
+def totalMass(listOfStars):
+    tm = 0
+    for i in listOfStars:
+        tm+=i.mass
+    return tm
+
+        
