@@ -1,7 +1,7 @@
 class Star(object):
 
     global G
-    G=6.67*10**(1)
+    G=6.67*10**(0)
     
     def __init__(self, xpos, ypos,velx=0, mass=1):  # Object constructor
        self.pos = PVector(xpos,ypos)
@@ -11,6 +11,7 @@ class Star(object):
        self.siz = 5
        
     def show(self): # Display the star on the canvas
+        noStroke()
         fill(255)
         ellipse(self.pos.x,self.pos.y,self.siz,self.siz)
         
@@ -26,19 +27,25 @@ class Star(object):
     def accel(self,F): # Find the acceleration on the star due to a force
         self.acc = F.div(self.mass)
                          
-    def move(self): # Displace star according to new velocity/acceleration
-        self.vel.add(self.acc)
-        self.pos.add(self.vel)
+    #def move(self): # Displace star according to new velocity/acceleration / Old version, less accurate, cf. leapfrog for better version
+     #   self.vel.add(self.acc)
+      #  self.pos.add(self.vel)
     
     def update(self,listOfStars): # Updates the position of a star wrt the force of a list of stars
         F = PVector(0,0)
         for i in listOfStars:
             if i!=self:
                 F.add(self.force(i))
-        self.accel(F)
-        self.move()
+        self.leapfrog(F)
+        #self.accel(F)
+        #self.move()   # Old versions of position update
         self.show()
         
+    def leapfrog(self,F):
+        self.pos.add(self.vel).add(self.acc.copy().div(2))
+        ai=self.acc.copy()
+        self.accel(F)
+        self.vel.add(ai.add(self.acc).div(2))
         
 #Exit class
 
