@@ -1,13 +1,15 @@
 class Quadtree{
   
   float siz;
+  Node structure;
   
   Quadtree(float size){
     siz = size;
+    structure = new Node(0,0,siz);
   }
   
 void buildTree(ArrayList<Star> stars){
-  Node structure = new Node(0,0,siz);
+  structure = new Node(0,0,siz);
   for (Star i : stars){
     structure.insertStar(i);
   }
@@ -66,7 +68,8 @@ class Node{
           }
         }
       }
-      show();
+      if (showGrid){
+      show();}
     }
   }
   

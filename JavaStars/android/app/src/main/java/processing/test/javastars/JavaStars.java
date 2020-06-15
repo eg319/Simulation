@@ -1,5 +1,137 @@
+package processing.test.javastars;
+
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class JavaStars extends PApplet {
+
+ArrayList<Star> stars = generateStars(5000);
+Quadtree tree = new Quadtree(1000);
+//ArrayList<Float> timings = new ArrayList<Float>();
+float m;
+
+
+public void setup(){
+  //fullScreen();
+  
+}
+
+public void draw(){
+  background(0);
+  //com(stars);
+  tree.buildTree(stars);
+  bupdateStars(stars,tree);
+  
+  //saveFrame("output/galaxy_####.png");
+}
+class Quadtree{
+  
+  float siz;
+  Node structure;
+  
+  Quadtree(float size){
+    siz = size;
+    structure = new Node(0,0,siz);
+  }
+  
+public void buildTree(ArrayList<Star> stars){
+  structure = new Node(0,0,siz);
+  for (Star i : stars){
+    structure.insertStar(i);
+  }
+  
+  }
+}
+
+class Node{
+
+  PVector pos,com;
+  boolean containsStar,external;
+  float siz,totMass;
+  ArrayList<Star> stars;
+  ArrayList<Node> subnodes;
+  
+  Node(float posx,float posy,float size){
+    pos = new PVector(posx,posy);
+    siz = size;
+    containsStar = false;
+    stars = new ArrayList<Star>();
+    com = new PVector (0,0);
+    totMass = 0;
+    external = true;
+    subnodes = new ArrayList<Node>();
+  }
+  
+  public boolean isInNode(PVector r){
+    if ((r.x < pos.x + siz) && (r.x > pos.x) && (r.y < pos.y + siz) && (r.y > pos.y)){
+      return true;
+    } else{
+    return false;
+    }
+  }
+  
+  public void updateMass(Star star){
+    com.mult(totMass).add(star.pos.copy().mult(star.mass)).div(totMass + star.mass);
+    totMass = totMass + star.mass;
+  }
+
+  public void insertStar(Star star){
+    if (isInNode(star.pos)){
+      stars.add(star);
+      updateMass(star);
+      if (!containsStar){
+        containsStar = true;
+      } else if (!external){
+        for (Node l : subnodes){
+          l.insertStar(star);
+        }
+      } else if (external){
+        external = false;
+        divide();
+        for (Star k : stars){
+          for (Node l : subnodes){
+            l.insertStar(k);
+          }
+        }
+      }
+      //show();
+    }
+  }
+  
+  public void divide(){
+    float subsize = siz/2;
+    subnodes.add(new Node(pos.x,pos.y,subsize));
+    subnodes.add(new Node(pos.x + subsize,pos.y,subsize));
+    subnodes.add(new Node(pos.x,pos.y + subsize,subsize));
+    subnodes.add(new Node(pos.x + subsize,pos.y + subsize ,subsize));
+  }
+  
+  public void show(){
+    stroke(255,0,0);
+    line(pos.x, pos.y,pos.x + siz ,pos.y);
+    line(pos.x,pos.y,pos.x,pos.y + siz);
+    line(pos.x + siz,pos.y,pos.x + siz,pos.y + siz);
+    line(pos.x,pos.y+siz, pos.x + siz,pos.y + siz);
+  
+  }
+}
+float G = 2 * pow(10,-2);
+
 class Star {
   
+  
+  float theta = 0.5f;
   PVector pos,vel,acc,force;
   float mass,siz;
   float R = random(0,0),Ge = random(100,255), B = random(255,255);
@@ -9,17 +141,17 @@ class Star {
     mass = m;
     vel = new PVector(velx,vely);
     acc = new PVector(0,0);
-    siz = 3; 
+    siz = 1; 
     force = new PVector(0,0);
   }
   
-  void show(){
+  public void show(){
   noStroke();
   fill(R,Ge,B);
   ellipse(pos.x,pos.y,siz,siz);
   }
   
-  void forceFunction(Star Star2){
+  public void forceFunction(Star Star2){
     PVector r1 = pos.copy();
     PVector r = r1.sub(Star2.pos).mult(-1);
     if (r.mag()<10){
@@ -30,19 +162,19 @@ class Star {
     force.add(F);
   }
   
-  PVector accel(PVector F){
+  public PVector accel(PVector F){
     acc = F.div(mass);
     return acc;
   }
   
-  void leapfrog(PVector F){
+  public void leapfrog(PVector F){
     pos.add(vel).add(acc.copy().div(2));
     PVector ai = acc.copy();
     accel(F);
     vel.add(ai.add(acc).div(2));
   }
   
-  void updateForce(ArrayList<Star> stars){
+  public void updateForce(ArrayList<Star> stars){
     for (Star i : stars){
       if (i != this){
         forceFunction(i);
@@ -53,7 +185,7 @@ class Star {
     
   }
   
-  void modForceFunction(Node node){
+  public void modForceFunction(Node node){
     PVector r1 = pos.copy(); //Copy must be used so self.pos doesn't change
     PVector modcom = node.com.copy();
     float modtotMass = node.totMass;
@@ -73,7 +205,7 @@ class Star {
     force.add(r.copy().normalize().mult(F_));
   }
   
-  void bupdateForce(Node node){
+  public void bupdateForce(Node node){
   if (node.external){
     for (Star i : node.stars){
       if (i != this){
@@ -92,7 +224,7 @@ class Star {
 
 //Exit class
 
-ArrayList<Star> generateStars(int n){
+public ArrayList<Star> generateStars(int n){
   ArrayList<Star> stars;
   Galaxy gal = new Galaxy(500,n);
   stars = gal.createStars();
@@ -103,7 +235,7 @@ ArrayList<Star> generateStars(int n){
   return stars;
 }
 
-void updateStars(ArrayList<Star> stars){
+public void updateStars(ArrayList<Star> stars){
   for (Star i : stars){
     i.force = new PVector(0,0);
   }
@@ -116,7 +248,7 @@ void updateStars(ArrayList<Star> stars){
   }
 }
 
-void bupdateStars(ArrayList<Star> stars, Quadtree tree){
+public void bupdateStars(ArrayList<Star> stars, Quadtree tree){
   for (Star i : stars){
     i.force = new PVector(0,0);
   }
@@ -129,7 +261,7 @@ void bupdateStars(ArrayList<Star> stars, Quadtree tree){
   }
 }
 
-void com(ArrayList<Star> stars){
+public void com(ArrayList<Star> stars){
   PVector r = new PVector(0,0);
   for (Star i : stars){
     r.add(i.pos.copy().mult(i.mass));
@@ -140,8 +272,8 @@ void com(ArrayList<Star> stars){
   }
 }
 
-float totalMass(ArrayList<Star> stars){
-  float tm = 0.0;
+public float totalMass(ArrayList<Star> stars){
+  float tm = 0.0f;
   for (Star i : stars){
     tm = tm + i.mass;
     }
@@ -157,18 +289,18 @@ class Galaxy{
   Galaxy(float rad,float nStars){
     radius = rad;
     n = nStars;
-    A=0.005;
-    B = 1.3;
+    A=0.005f;
+    B = 1.3f;
     stars = new ArrayList<Star>();
   }
   
-  float densityDistribution(float x,float Al,float Be){
+  public float densityDistribution(float x,float Al,float Be){
     float rho;
     rho = exp(-Al*pow(x,Be));
     return rho;
   }
   
-  float integrateDensity(float lim){
+  public float integrateDensity(float lim){
   float l =radius*2,integ =0,r=0;
   for (int i=0; i<l; i = i+1){
     integ+= densityDistribution(radius*i/l,A,B)*radius/l;
@@ -184,9 +316,9 @@ class Galaxy{
    return r;
   }
   
-  ArrayList<Star> createStars(){
+  public ArrayList<Star> createStars(){
     float area = integrateDensity(0);
-    //println(area);
+    print(area);
     for (int i = 0; i<n;i = i+1){
       float ran = random(0,area);
       float r = integrateDensity(ran);
@@ -199,4 +331,6 @@ class Galaxy{
     return stars;
   }
   
+}
+  public void settings() {  size(1000,700); }
 }
