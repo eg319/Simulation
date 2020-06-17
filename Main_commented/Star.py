@@ -1,7 +1,17 @@
-class Star(object): #Created new class of object called stars
+global nStars
+nStars = 500
+def adjustG(spaceScale,timeScale):
+    spaceScale = spaceScale * 9.461*10**(15) # pixels in LY to m
+    timeScale = timeScale * 10**(6)* 365.24*24*3600 # frames in MY to s
+    massScale = 3*10**(11) * 0.3 * 2 * 10**(30)/nStars # mass of a star to kg
+    G = 6.67 * 10**(-11) * 1/spaceScale**(3) *timeScale**(2) * massScale
+    return G
 
-    global G #Defines the gravitational constant, can be varied.
-    G=6.67*10**(0)
+global G
+G = adjustG(1000,2.5)
+
+class Star(object): #Created new class of object called stars
+    
     global theta
     theta = 2
     
@@ -46,14 +56,15 @@ class Star(object): #Created new class of object called stars
         r1 = self.pos.copy() #Copy must be used so self.pos doesn't change
         modcom = node.com.copy()
         modtotMass = node.totMass
-        #for i in node.stars:
-        #    if i == self:
-        #        modtotMass = modtotMass - self.mass
-        #        modcom = modcom.mult(node.totMass).sub(self.pos.mult(self.mass)).div(modtotMass)
+        s = 1
+        for i in node.stars:
+            if i == self:
+                modtotMass = modtotMass - self.mass
+                modcom = modcom.mult(node.totMass).sub(self.pos.mult(self.mass)).div(modtotMass)
         r = r1.sub(modcom).mult(-1)
-        if r.mag()<10: #This ensure the stars don't collide (which means they don't fly away as much because force due to gravity --> infinity
-           r=r.normalize().mult(10)
-        F_ = self.mass*modtotMass*G/(r.mag())**2 #Defines force magnitude
+        if r.mag()<self.siz: #This ensure the stars don't collide (which means they don't fly away as much because force due to gravity --> infinity    s = 0
+           s = 0
+        F_ = s*self.mass*modtotMass*G/(r.mag())**2 #Defines force magnitude
         self.force.add(r.copy().normalize().mult(F_))
     
     def bupdateForce(self,node): # When called, the node is tree.structure
@@ -141,10 +152,10 @@ class Galaxy:
         integ = 0
         r=0
         for i in range(n):
-            integ+= self.densityDistribution(self.radius*i/n,self.B,self.C)*self.radius*i/n
+            integ+= self.densityDistribution(self.radius*i/n,self.B,self.C)*self.radius/n
             if lim !=0 and integ > lim:
                 r = self.radius*i/n
-                print(r)
+                #print(r)
                 break
         if r == 0:
             r = integ
@@ -161,5 +172,4 @@ class Galaxy:
             self.stars.append(Star(r*cos(th),r*sin(th),-sin(th),cos(th),1))
         
         return self.stars
-        
         

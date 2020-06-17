@@ -1,12 +1,13 @@
 from Star import * #Imports all information from Star.py
 from Quadtree import * #Imports all information from Quadtree.py
-
-stars = generateStars(1000) #Decide the number of stars
+stars = generateStars(nStars) #Decide the number of stars
 tree = Quadtree() #Creates the Barnes-Hut tree object
 timings = []
 
 def setup(): 
   size(1000, 700) #Define the size of the canvas
+  G =  adjustG(1000,2.5)
+  
 
 def draw():
     background(0) #Defines background colour (0=black)
@@ -22,3 +23,7 @@ def mousePressed():
         avg+=i
     avg= avg/len(timings)
     print(avg)
+    
+
+    
+    
