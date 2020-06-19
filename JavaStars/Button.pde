@@ -12,7 +12,7 @@ class Button{
   }
  
   void display(){
-  fill(255);
+  fill(0,0,150);
   rect(pos.x,pos.y,w,h);  
   } 
   
@@ -33,7 +33,7 @@ class LaunchButton extends Button{
    
   void show(){
   super.display();
-  fill(0);
+  fill(200,200,0);
   textSize(32);
   text("Launch Simulation",pos.x+w/10,pos.y+h/2);
   }
@@ -47,7 +47,7 @@ class SettingsButton extends Button{
 
   void show(){
   super.display();
-  fill(0);
+  fill(200,200,0);
   text("Open Settings",pos.x+w/10,pos.y+h/2);
   }
 }
@@ -61,7 +61,7 @@ class ReturnButton extends Button{
   
   void show(){
   super.display();
-  fill(0);
+  fill(200,200,0);
   text("Return",pos.x+w/10,pos.y + h/2);
   }
 }
@@ -77,9 +77,35 @@ class ShowGridButton extends Button{
   
   void show(){
   super.display();
-  fill(0);
+  fill(200,200,0);
   if (showGrid){
   show = "QuadTree shown";} else {show = "QuadTree hidden";}
   text(show,pos.x+w/10,pos.y + h/2);
+  }
+}
+class Page1Button extends Button{
+    
+  Page1Button(float xpos, float ypos, float w_, float h_ ){
+   super(xpos,ypos,w_,h_);
+   super.isOnDisplay = false;
+   }
+
+  void show(){
+  super.display();
+  fill(200,200,0);
+  text("◄ Page 1",pos.x+w/10,pos.y+3*h/4);
+  }
+}
+class Page2Button extends Button{
+    
+  Page2Button(float xpos, float ypos, float w_, float h_ ){
+   super(xpos,ypos,w_,h_);
+   super.isOnDisplay = false;
+   }
+
+  void show(){
+  super.display();
+  fill(200,200,0);
+  text("Page 2 ► ",pos.x+w/10,pos.y+3*h/4);
   }
 }

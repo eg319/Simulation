@@ -5,7 +5,7 @@ class Quadtree{
   
   Quadtree(float size){
     siz = size;
-    structure = new Node(0,0,siz);
+    structure = new Node(-width,-height,siz);
   }
   
 void buildTree(ArrayList<Star> stars){
@@ -30,7 +30,7 @@ class Node{
     siz = size;
     containsStar = false;
     stars = new ArrayList<Star>();
-    com = new PVector (0,0);
+    com = new PVector (size/2,size/2);
     totMass = 0;
     external = true;
     subnodes = new ArrayList<Node>();
@@ -72,6 +72,13 @@ class Node{
       show();}
     }
   }
+    
+  
+  void addDM(){
+    totMass+= siz*siz*dmDist(com.copy().sub(new PVector(width/2,height/2)).mag(),charDens,charRad);
+  }
+  
+  
   
   void divide(){
     float subsize = siz/2;
@@ -79,10 +86,14 @@ class Node{
     subnodes.add(new Node(pos.x + subsize,pos.y,subsize));
     subnodes.add(new Node(pos.x,pos.y + subsize,subsize));
     subnodes.add(new Node(pos.x + subsize,pos.y + subsize ,subsize));
+    for (Node i : subnodes){
+      i.addDM();
+    }
   }
   
   void show(){
     stroke(255,0,0);
+    strokeWeight(1);
     line(pos.x, pos.y,pos.x + siz ,pos.y);
     line(pos.x,pos.y,pos.x,pos.y + siz);
     line(pos.x + siz,pos.y,pos.x + siz,pos.y + siz);
